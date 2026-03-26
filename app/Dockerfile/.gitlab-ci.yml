@@ -4,7 +4,10 @@ stages:
   - deploy
 
 variables:
-  IMAGE_NAME: your-dockerhub/devops-app
+  IMAGE_NAME: devops-app
+
+before_script:
+  - docker info
 
 build:
   stage: build
@@ -15,9 +18,10 @@ push:
   stage: push
   script:
     - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-    - docker push $IMAGE_NAME
+    - docker tag $IMAGE_NAME $DOCKER_USER/$IMAGE_NAME
+    - docker push $DOCKER_USER/$IMAGE_NAME
 
 deploy:
   stage: deploy
   script:
-    - ssh ubuntu@$EC2_IP "kubectl apply -f k8s/"
+    - kubectl apply -f k8s/
