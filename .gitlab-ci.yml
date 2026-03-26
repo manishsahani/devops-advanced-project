@@ -1,9 +1,18 @@
+image: docker:24.0.5
+
+services:
+  - docker:24.0.5-dind
+
 stages:
   - build
   - push
 
 variables:
   IMAGE_NAME: devops-app
+  DOCKER_TLS_CERTDIR: ""
+
+before_script:
+  - docker info
 
 build:
   stage: build
@@ -16,8 +25,3 @@ push:
     - echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
     - docker tag $IMAGE_NAME $DOCKER_USER/$IMAGE_NAME
     - docker push $DOCKER_USER/$IMAGE_NAME
-
-deploy:
-   stage: deploy
-   script:
-     - kubectl apply -f k8s/
